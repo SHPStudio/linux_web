@@ -11,15 +11,15 @@ gen### Python template
 __pycache__/
 *.py[cod]
 *$py.class
-
+dist
 # C extensions
 *.so
 
 # Distribution / packaging
 .Python
 build/
+/upload/**
 develop-eggs/
-dist/
 downloads/
 eggs/
 .eggs/

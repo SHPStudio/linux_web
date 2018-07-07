@@ -1,14 +1,17 @@
 #coding=utf-8
-from flask import Flask,render_template,jsonify
-from flask import request
-# from flask_cors import CORS
-import os,linux,json
+from flask import Flask,render_template,jsonify,request
+from flask_cors import CORS
+import os,linux,json,common
 app = Flask(__name__)
-# CORS(app)
+CORS(app)
+
 UPLOAD_FOLDER = 'upload'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER  # 设置文件上传的目标文件夹
 basedir = os.path.abspath(os.path.dirname(__file__))  # 获取当前项目的绝对路径
+
 ALLOWED_EXTENSIONS = set(['war','zip','jpg','png','gif','jpeg'])  # 允许上传的文件后缀
+
+
 # 判断文件是否合法
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
@@ -36,8 +39,12 @@ def startWar():
     data = request.data
     print data
     j_data = json.loads(data)
-    code = linux.runUnzip(basedir,j_data['fileName'])
-    return jsonify({"code": code})
+    docker_deploy = linux.DockerDeploy(fileName=j_data['fileName'],appName=j_data['appName'],appTargetPath=j_data["appTargetPath"])
+    result = linux.runWar(docker_deploy)
+    return jsonify(result)
 
 if __name__ == '__main__':
+    common._init()
+    common.set_value("baseDir", basedir)
+    common.set_value("uploadDir", os.path.join(basedir,UPLOAD_FOLDER))
     app.run(debug=True,host='0.0.0.0', port=5000)
